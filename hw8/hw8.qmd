@@ -1,0 +1,159 @@
+---
+title: Homework 8 - using an API
+author: (your name goes here)
+date: last-modified
+format:
+    html:
+        theme: cosmos
+        toc: true
+        html-math-method: katex
+        embed-resources: true
+        copy-code: true
+---
+This assignment is in two parts.  The first is a set of exercises and the second is a reflection / essay style series of questions consolidating learning and encouraging a deeper understanding of APIs.
+
+The exercises in this project reinforce basic API usage concepts using the "Rick and Morty" API. Each exercise builds upon the previous ones and introduces new concepts.
+
+Be sure to review the references at the bottom of this document.  These references pertain DIRECTLY to this assignment and just may provide you with the code that you need to successfully complete the project.
+
+# Background
+
+[The "Rick and Morty" API](https://rickandmortyapi.com) is a RESTful web service that provides information about the characters, locations, and episodes from the ["Rick and Morty"](https://www.adultswim.com/videos/rick-and-morty) animated television series. It's designed to allow developers to query and retrieve data programmatically, which makes it an excellent tool for educational purposes, fan projects, or applications that require information from the show's universe.
+
+Here's an overview of the main features of the API:
+
+- [**Characters:**](https://rickandmortyapi.com/documentation/#character) You can retrieve data about characters, including their names, species, images, location, and status (alive, dead, or unknown). This allows developers to use character data for creating applications or services that need detailed information about the show's cast.
+
+- [**Locations:**](https://rickandmortyapi.com/documentation/#location) The API provides details about the various locations that characters in the show have visited, including planets, dimensions, and more. This can be used to create applications that provide a geographical context for the events in the series.
+
+- [**Episodes:**](https://rickandmortyapi.com/documentation/#episode) Information about each episode is available through the API, including air dates, the episode's name, and the characters that appear in it. This is useful for creating applications that track story arcs or character appearances.
+
+- [**Filters and Queries:**](https://rickandmortyapi.com/documentation/#filter-characters) The API supports filtering and search queries, which means developers can request lists of characters, locations, or episodes based on specific criteria (like all characters who are "Human" or locations in a particular dimension).
+
+- [**Pagination:**](https://rickandmortyapi.com/documentation/#info-and-pagination) To manage large datasets, the API uses pagination, so developers need to write code that can handle multiple requests if they want to retrieve all items in a category.
+
+[The "Rick and Morty" API](https://rickandmortyapi.com/documentation) is a fun and engaging way for fans and developers to interact with the show's rich and detailed universe. Its straightforward design and comprehensive dataset make it an excellent choice for teaching API interaction concepts.
+
+# Exercises
+
+The following exercises offer practice using an API. References are provided below.  However,
+in this scaffold I'm NOT providing much sample code.  See the references below for sample code.
+
+TIP: I suggest that you start with the [python API tutorial](https://www.dataquest.io/blog/python-api-tutorial) in the references. You'll probably want to use the *requests* module. If you get a *module not found* error when you import it, then you'll need to make sure that Poetry adds it to your environment using *poetry add requests*.
+
+```{python}
+#| eval: true
+#| echo: false
+import os
+```
+
+## Exercise 1: Basic API Request
+
+**Objective:** Retrieve and print the first 5 characters from the API.
+
+**Concepts:** HTTP GET request, JSON response parsing.
+
+```{python}
+# Use requests to perform a GET request to the API.
+# Parse the JSON response to print the names of the first 5 characters.
+```
+
+## Exercise 2: Handling Pagination
+
+**Objective:** Retrieve and print the names of all characters that appear on the first 3 pages of the API results.
+
+**Concepts:** Looping over pages, query parameters.
+```{python}
+# Use a loop to navigate through the first 3 pages.
+# Collect and print the names of the characters from these pages.
+```
+
+## Exercise 3: Query Parameters
+
+**Objective:** Find and print all characters with the name "Rick".
+
+**Concepts:** Utilizing query parameters, conditional logic.
+```{python}
+# Use query parameters to filter results by name.
+# Check if the characters' names contain "Rick" and print them.
+```
+
+## Exercise 4: Error Handling
+
+**Objective:** Write a function that takes a character ID and prints the character's information. It should handle cases where the character does not exist.
+
+**Concepts:** Error handling, function definition.
+```{python}
+# Define a function that accepts a character ID.
+# Make a request to the API and handle any potential errors, like a 404.
+```
+
+## Exercise 5: Data Manipulation
+
+**Objective:** Retrieve all locations and their associated characters, and present this information in a dictionary with location names as keys and lists of character names as values.
+
+**Concepts:** Data structuring, nested API calls.
+```{python}
+# Retrieve all locations.
+# For each location, make an API call to get the characters for that location.
+# Store the results in a dictionary and print it.
+```
+
+## Exercise 6: Create a high-school yearbook style listing of images
+
+This exercise incorporates all the skills from above, adding additional craziness to display the data in a yearbook-style layout within your quarto HTML file.
+
+<center>
+![](assets/yearbook-example.png)
+</center>
+
+**Objective:** Use the "Rick and Morty" API to generate a yearbook-style grid of headshots and names of characters within this HTML.
+
+**Concepts:** API data extraction, structured text generation, file I/O, basic web design.
+
+```{python}
+# Retrieve all characters
+# For each character print header
+```
+
+# Reflection
+
+Reflecting on exercises and the broader concepts behind API design can help consolidate learning and encourage deeper understanding.
+
+Please respond to the following questions.  Make sure that your responses are INSIDE the blocks marked with semi-colons.  You will not receive credit if your responses are outside the blocks.
+
+**Adaptation and Challenges**: How did you have to adapt your approach as the exercises increased in complexity, and what was the most challenging aspect of working with the "Rick and Morty" API? This question prompts students to think about their learning process, problem-solving strategies, and any difficulties they encountered with the API's structure or data.
+
+::: {#reflection1}
+(response goes inside here)
+:::
+
+**Data Handling and Processing**: In working with the data returned by the API, what considerations did you take into account for handling and presenting the data? This encourages students to reflect on the importance of data manipulation, presentation, and the user experience of their own code.
+
+::: {#reflection2}
+(response goes inside here)
+:::
+
+**Reflection Questions on API Design**:
+Ease of Use: Based on your experience as a consumer of the "Rick and Morty" API, what features or design elements did you find made the API particularly easy or difficult to use? This reflection can lead to discussions on good documentation, clear endpoint naming conventions, response structures, and error handling.
+
+::: {#reflection3}
+(response goes inside here)
+:::
+
+**API Best Practices**: If you were to design your own API, what best practices would you implement based on what you've learned from both using the "Rick and Morty" API and from the challenges you encountered during these exercises? This encourages students to think critically about the architecture and design choices that go into creating a user-friendly and robust API. 
+
+::: {#reflection4}
+(response goes inside here)
+:::
+
+# References
+
+1. [Chatgpt](https://chat.openai.com) was used in the creation of this assignment.
+1. [Rick and Morty API](https://rickandmortyapi.com/)
+1. [Python API Tutorial](https://www.dataquest.io/blog/python-api-tutorial/)
+1. [How to make API calls in Python](https://www.educative.io/answers/how-to-make-api-calls-in-python)
+1. [Making API calls using Python](https://realpython.com/api-integration-in-python/)
+1. [How to make an API call in Python (vscode) YOUTUBE](https://www.youtube.com/watch?v=izhHyIyxdwY)
+1. [Best practices for REST API security](https://stackoverflow.blog/2021/10/06/best-practices-for-authentication-and-authorization-for-rest-apis/)
+
