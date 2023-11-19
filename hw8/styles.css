@@ -1,0 +1,13 @@
+.yearbook_picture {
+    display: inline-block;
+    font-size: 14pt;
+    text-align: center;
+    border: 1px solid black;
+    padding: 2px;
+    margin: 2px;
+}
+
+.character_image {
+    border-radius: 50%;
+    width: 150px;
+}
