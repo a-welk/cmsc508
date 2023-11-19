@@ -167,7 +167,8 @@ def get_character_info(character_id):
 
 if __name__ == "__main__":
     # Example usage with character ID 1
-    character_id = input("Enter character ID: ")
+    ## character_id = input("Enter character ID: ")
+    character_id = 1
     get_character_info(character_id)
 ```
 
@@ -280,6 +281,7 @@ def print_formatted(character):
 
 if __name__ == "__main__":
     characters = retrieve_characters()
+    s = ""
     for character in characters:
         s = s + print_formatted(character)
 
@@ -291,33 +293,31 @@ if __name__ == "__main__":
 
 # Reflection
 
-Reflecting on exercises and the broader concepts behind API design can help consolidate learning and encourage deeper understanding.
-
-Please respond to the following questions.  Make sure that your responses are INSIDE the blocks marked with semi-colons.  You will not receive credit if your responses are outside the blocks.
+This assignment gave us practice with API queries and how to display the results of those queries in a nice format using python.
 
 **Adaptation and Challenges**: How did you have to adapt your approach as the exercises increased in complexity, and what was the most challenging aspect of working with the "Rick and Morty" API? This question prompts students to think about their learning process, problem-solving strategies, and any difficulties they encountered with the API's structure or data.
 
 ::: {#reflection1}
-(response goes inside here)
+I was originally unfamiliar with how API's worked in general so this did a good job at teaching how they work and how to obtain information from them. I had to consult a number of online resources on how to properly loop through the data to display it. I am also inexperienced in python so I had to learn some basic syntax for the basics.
 :::
 
 **Data Handling and Processing**: In working with the data returned by the API, what considerations did you take into account for handling and presenting the data? This encourages students to reflect on the importance of data manipulation, presentation, and the user experience of their own code.
 
 ::: {#reflection2}
-(response goes inside here)
+For a while I struggled with how to get the links for the images from exercise #6 to display as images so that was a bit of a headache. I managed to figure that out by importing the HTML module. 
 :::
 
 **Reflection Questions on API Design**:
 Ease of Use: Based on your experience as a consumer of the "Rick and Morty" API, what features or design elements did you find made the API particularly easy or difficult to use? This reflection can lead to discussions on good documentation, clear endpoint naming conventions, response structures, and error handling.
 
 ::: {#reflection3}
-(response goes inside here)
+I'd say the Rick and Morty API was relatively easy to use, the documentation it has on how to query for various information was certainly useful. I'd say the most difficult part was figuring out how to loop through each page of the characters when obtaining all the characters for exercise #6.
 :::
 
 **API Best Practices**: If you were to design your own API, what best practices would you implement based on what you've learned from both using the "Rick and Morty" API and from the challenges you encountered during these exercises? This encourages students to think critically about the architecture and design choices that go into creating a user-friendly and robust API. 
 
 ::: {#reflection4}
-(response goes inside here)
+I'd say make sure to include the information being given in the API link similar to how the Rick and Morty API does it with /character or /location in the url.
 :::
 
 # References
