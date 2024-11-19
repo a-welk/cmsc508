@@ -1,0 +1,67 @@
+---
+title: Welcome to Homework 2
+date: 08/29/2023
+author: Alex Welk
+format:
+    gfm:
+        mermaid-format: png
+---
+
+This is my solution to homework 2. I'm using Quarto render this document from a QMD file to a regular
+MD file for display on GITHUB.
+
+## Scenario
+
+Imagine you're designing a Library Management System for a small local library. The system needs to track information about books and library members. Each book has a unique ISBN (International Standard Book Number), a title, and a publication year. Each library member is identified by a unique member IDu8, and the system needs to store their name and contact information. Library members can check out books, but they don’t have to.
+
+## Design Task 1
+
+Identify and document the entities, attributes, and relationships using Chen notation.
+
+```{dot}
+    graph ER {
+        fontname="Helvetica,Arial,sans-serif"
+	    node [fontname="Helvetica,Arial,sans-serif"]
+	    edge [fontname="Helvetica,Arial,sans-serif"]
+	    layout=neato
+
+        node [shape=box]; MEMBER; BOOK;
+        node [shape=ellipse]; ID; name; contact; ISBN; title; publication_year;
+        node [shape = diamond, style=filled, color=lightgrey]; "checks-out";
+
+        name -- MEMBER;
+        ID -- MEMBER;
+        contact -- MEMBER;
+
+        MEMBER -- "checks-out";
+        "checks-out" -- BOOK;
+        BOOK -- ISBN;
+        BOOK -- title;
+        BOOK -- publication_year;
+
+        fontsize = 20;
+    }
+```
+
+
+## Design Task 2
+
+Identify and document the entities, attributes, and relationships using Crow’s Foot notation.
+
+<center>
+```{mermaid}
+erDiagram
+    MEMBER ||--o{BOOK : checks-out
+    MEMBER {
+        string ID
+        string name
+        string contact
+    }
+    BOOK {
+        string ISBN
+        string title
+        string publication_year
+    }
+
+    ```
+

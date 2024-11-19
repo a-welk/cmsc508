@@ -1,0 +1,386 @@
+---
+title: Homework 5 - Database Normalization
+date: last-modified
+author: Alex Welk
+format:
+    html:
+        theme: darkly
+        toc: true
+        embed-resources: true
+#
+# To change themes, see: https://quarto.org/docs/output-formats/html-themes.html
+#
+
+---
+Link to my github: <https://github.com/cmsc-vcu/cmsc508-fa2023-hw5-a-welk>
+
+Database normalization is a systematic process in relational database design aimed at organizing data efficiently while minimizing redundancy and ensuring data integrity. It involves breaking down complex tables into smaller, related tables to eliminate data anomalies and dependencies. The process consists of several normal forms, such as First Normal Form (1NF), Second Normal Form (2NF), and Third Normal Form (3NF), each addressing specific types of redundancy and dependency issues. By achieving higher normal forms, database designers create more robust, maintainable, and efficient databases that facilitate data retrieval and modification.
+
+Functional dependencies play a pivotal role in the process of database normalization. They define the relationships between attributes within tables, enabling the identification of candidate keys—sets of attributes that can uniquely identify each row in a table. To achieve higher normal forms, such as Second Normal Form (2NF) and Third Normal Form (3NF), designers utilize functional dependencies to eliminate partial and transitive dependencies. Closures and minimum covers help in the formal analysis of these dependencies, assisting designers in identifying the minimal set of functional dependencies necessary to achieve a specific normal form. This rigorous approach to managing dependencies and achieving higher normal forms ultimately results in more efficient and well-structured databases, reducing data redundancy and the potential for anomalies.
+
+# Tools and resources
+
+* <http://raymondcho.net/RelationalDatabaseTools/RelationalDatabaseTools.html>
+* <http://www.ict.griffith.edu.au/normalization_tools/normalization/ind.php>
+* <https://ashutoshtripathi.com/gate/dbms/normalization-normal-forms/procedure-to-decompose-a-given-relation-in-bcnf-bcnf-algorithm/>
+* <https://ecampusontario.pressbooks.pub/relationaldatabasesandmicrosoftaccess365/chapter/__unknown__-93/>
+* <https://www.cs.rpi.edu/~sibel/csci4380/fall2020/recordings.html>
+* <https://www.geeksforgeeks.org/first-normal-form-1nf/?ref=lbp>
+* <https://www.geeksforgeeks.org/second-normal-form-2nf/?ref=lbp>
+* <https://www.geeksforgeeks.org/third-normal-form-3nf/?ref=lbp>
+* <https://www.geeksforgeeks.org/boyce-codd-normal-form-bcnf/?ref=lbp>
+
+# Terms and definitions
+
+Define the following terms. Where possible connect these definitions to other terms in the list.  Further, feel free to use
+algebraic notation and LaTeX to define terms where appropriate.
+
+Relation
+: A table that shows the relationship between attributes
+
+Attribute
+: A characteristic of an entity, represented as columbs in a table
+
+Tuple
+: A set of data that represent an instance of an entity, represented with a row in a table
+
+Functional dependency
+: A relationship where an attribute determines another attribute
+
+Candidate Key
+: A candidate key is a set of one or more attributes (columns) in a database table that can uniquely identify each row in that table.
+
+Primary Key
+: selected by designer from one of the candidate keys to become the primary identifier of a tuple in a relation
+
+Super Key
+: a group of single or multiple columns which identifies rows in a table
+
+Composite Key
+: A primary or candidate key that consists of two or more columns in a table
+
+Prime attributes
+: an attribute that is part of a candidate key
+
+Non-prime attributes
+:  an attribute (column) in a DB that is not part of any candidate key. Not used to identify rows
+
+Armstrong’s axioms
+: a set of logical rules used to infer functional dependencies between attributes in a relational database schema
+
+Partial Dependency
+: when an attribute or set of attributes in a table depend on each other based on given dependencies
+
+Transitive Dependency
+: when an attribute depends on another attribute through a chain of dependencies
+ex: A->B, B->C, A has a transitive dependency to C
+
+Attribute Closure
+: the set of attributes that can be functionally determined by a given set of aatributes based on the given set of functional dependencies
+
+Decomposition
+: breaking down a table into several smaller relations to reduce reduncancy and to make sure each relation is in a normal form
+
+Lossless decomposition 
+: property where after breaking a relation into smallter relations, no information is lost.
+
+Denormalization
+: DB design technique that involves intentionally introducing redundancy into a Db schema to optimize query performance and simplify data retrieval operations
+
+Trivial functional dependencies 
+: those that can be inferred directly from the attributes themselves without any additional information or rules
+
+Closure of a set of FDs 
+: the set of all functional dependencies that can be logically derived from the given set of functional dependencies using Armstrong's axioms
+
+Minimum cover
+: the smallest set of functinal dependencies that is equivalent to the original set. Smallest set that implies the same set of attributes as the original set
+
+First normal form (1NF)
+: a property of a relational database table where each column contains only atomic (indivisible) values, and there are no repeating groups or arrays within table
+
+Second normal form (2NF)
+: where its in 1NF, and all non-prime attributes are fully functionally dependent on the entire primary key
+
+Third normal form (3NF)
+: 2nf and there are no transitive dependencies between non-prime attributes
+
+Boyce Codd normal form (BCNF)
+: stricter form of 3NF, where it's in 3NF and for every non-trivial functional dependency, the left hand size is a superkey
+
+Fourth normal form (4NF)
+: a property of relational databases that addresses multi-valued dependencies, ensuring that each attribute is only dependent on the primary key
+
+# Calculating closures and normal forms.
+
+Use the [Cho Calculator](http://raymondcho.net/RelationalDatabaseTools/RelationalDatabaseTools.html) to answer the following questions:
+
+Given the relation $R(A,B,C,D,E,F,G)$ and the set of functional dependencies $F ({A \rightarrow B, BC \rightarrow D, D \rightarrow E, F \rightarrow G})$:
+
+1. What is the closure of $AB$, that is, $(AB)^+$?
+
+    $(A,B)$
+
+1. What is $(ABC)^+$?
+
+    $(A,B,C,D,E)$
+
+1. What is $(ACE)^+$?
+
+    $(A,B,C,D,E)$
+
+1. How many candidate keys were found?
+
+    **One composite minimum key found. There are no non-composite minimum candidate keys.**
+
+1. How many superkeys were found?
+
+    $15$
+
+1. What is the list of prime attributes?
+
+    $(A, C, F)$
+
+1. What is the list of non-prime attributes?
+
+    $(B, D, E, G)$
+
+1. What is minimal cover set?
+
+    $(A → B; D → E; F → G; B,C → D)$
+
+1. What is the normal form of the input relation $R$?
+
+    **1NF**
+
+1. What is the BCNF decomposition of $R$?
+
+    $R_{0}(A,B) having FD(s): $A \rightarrow B$
+    ... list additional relations here
+
+    $R_{0}(A, B)$ having FD(s): A → B.
+    $R_{1}(D, E)$ having FD(s): D → E.
+    $R_{2}(F, G)$ having FD(s): F → G.
+    $R_{3}(B, C, D)$ having FD(s): B,C → D.
+    $R_{4}(A, C, F)$ having FD(s): (none).
+
+# Task 1 - Decompose to BCNF
+
+Using the Cho calculator, decompose the following relation to BCNF:
+
+| RID | Course Code | Course Name       | First   | Last      | Language   |
+|---|-------------|-------------------|---------|-----------|------------|
+| 1 | CMSC508     | Databases         | John    | Leonard   | SQL        |
+| 1 | CMSC508     | Databases         | John    | Leonard   | Python     |
+| 1 | CMSC508     | Databases         | John    | Leonard   | Perl       |
+| 2 | CMSC508     | Databases         | Alberto | Cano      | SQL        |
+| 2 | CMSC508     | Databases         | Alberto | Cano      | Python     |
+| 2 | CMSC508     | Databases         | Alberto | Cano      | C++        |
+| 3 | CMSC475     | UI/UX design      | John    | Leonard   | Javascript |
+| 3 | CMSC475     | UI/UX design      | John    | Leonard   | Python     |
+| 4 | CMSC441     | Capstone          | Bob     | Dahlberg  | COBOL      |
+| 4 | CMSC441     | Capstone          | Bob     | Dahlberg  | FORTRAN    |
+| 5 | CMSC320     | Data Structures   | Sarah   | Adams     | C++        |
+| 5 | CMSC320     | Data Structures   | Sarah   | Adams     | Java       |
+| 5 | CMSC320     | Data Structures   | Sarah   | Adams     | Python     |
+| 6 | CMSC210     | Software Design   | Michael | Turner    | Java       |
+| 6 | CMSC210     | Software Design   | Michael | Turner    | C#         |
+| 7 | CMSC515     | Computer Vision   | Emily   | Parker    | Python     |
+| 7 | CMSC515     | Computer Vision   | Emily   | Parker    | MATLAB     |
+| 8 | CMSC430     | Web Development   | Jessica | Clark     | HTML       |
+| 8 | CMSC430     | Web Development   | Jessica | Clark     | CSS        |
+| 8 | CMSC430     | Web Development   | Jessica | Clark     | JavaScript |
+| 9 | CMSC610     | Machine Learning  | Alberto | Cano      | Python     |
+| 9 | CMSC610     | Machine Learning  | Alberto | Cano      | R          |
+
+1. Write the relation above using relational algebraic notation:
+
+    $R(A,B,C,D,E,F)$
+
+    $A \rightarrow B,C,D,E$
+
+    $B \rightarrow C$
+
+1. Decompose the relation above and write the BCNF relations here, along with the FD(s) for the relation:
+
+    $R_{0}(A, B, D, E)$  having  $FD(s): A → B; A → D; A → E$.
+
+    $R_{1}(B, C)$  having FD(s):  $B → C$.
+
+    $R_{3}(A, F)$  having FD(s):  (none).
+
+# Task 2 - Decompose to BCNF
+
+Using the Cho calculator, decompose the following relation to BCNF:
+
+| RID | CID | Course Code |  Course Name      | PID  | First   | Last      | LID  | Language   |
+|-----|-----|-------------|-------------------|------|---------|-----------|------|------------|
+| 1   |  1  | CMSC508    |  Databases         |  1   | John    | Leonard   |  1   | SQL        |
+| 1   |  1  | CMSC508    |  Databases         |  1   | John    | Leonard   |  2   | Python     |
+| 1   |  1  | CMSC508    |  Databases         |  1   | John    | Leonard   |  3   | Perl       |
+| 2   |  1  | CMSC508    |  Databases         |  2   | Alberto | Cano      |  1   | SQL        |
+| 2   |  1  | CMSC508    |  Databases         |  2   | Alberto | Cano      |  2   | Python     |
+| 2   |  1  | CMSC508    |  Databases         |  2   | Alberto | Cano      |  4   | C++        |
+| 3   |  2  | CMSC475    |  UI/UX design      |  1   | John    | Leonard   |  5   | Javascript |
+| 3   |  2  | CMSC475    |  UI/UX design      |  1   | John    | Leonard   |  2   | Python     |
+| 4   |  3  | CMSC441    |  Capstone          |  3   | Bob     | Dahlberg  |  6   | COBOL      |
+| 4   |  3  | CMSC441    |  Capstone          |  3   | Bob     | Dahlberg  |  7   | FORTRAN    |
+| 5   |  4  | CMSC320    |  Data Structures   |  4   | Sarah   | Adams     |  4   | C++        |
+| 5   |  4  | CMSC320    |  Data Structures   |  4   | Sarah   | Adams     |  8   | Java       |
+| 5   |  4  | CMSC320    |  Data Structures   |  4   | Sarah   | Adams     |  2   | Python     |
+| 6   |  5  | CMSC210    |  Software Design   |  5   | Michael | Turner    |  8   | Java       |
+| 6   |  5  | CMSC210    |  Software Design   |  5   | Michael | Turner    |  9   | C#         |
+| 7   |  6  | CMSC515    |  Computer Vision   |  6   | Emily   | Parker    |  2   | Python     |
+| 7   |  6  | CMSC515    |  Computer Vision   |  6   | Emily   | Parker    |  10  | MATLAB     |
+| 8   |  7  | CMSC430    |  Web Development   |  7   | Jessica | Clark     |  11  | HTML       |
+| 8   |  7  | CMSC430    |  Web Development   |  7   | Jessica | Clark     |  12  | CSS        |
+| 8   |  7  | CMSC430    |  Web Development   |  7   | Jessica | Clark     |  5   | JavaScript |
+| 9   |  8  | CMSC610    |  Machine Learning  |  2   | Alberto | Cano      |  2   | Python     |
+| 9   |  8  | CMSC610    |  Machine Learning  |  2   | Alberto | Cano      |  13  | R          |
+
+The table above contains responses from a survey.  The survey asked for the course code and name, the instructor first and last name, and the computer languages known by the instructor.
+
+1. Write the relation above using relational algebraic notation:
+
+    $R(A,B,C,D,E,F,G,H,I)$
+
+1. Write the functional dependencies in the same notation:
+
+    $FD( B \rightarrow C,D )$
+
+    $FD( E \rightarrow F,G )$
+
+    $FD( H \rightarrow I )$
+
+1. Decompose the relation above and write the BCNF relations here, along with the FD(s) for the relation:
+
+    $R_{0}(B, C, D)$ having FD(s): B → C; B → D.
+
+    $R_{1}(E, F, G)$ having FD(s): E → F; E → G.
+
+    $R_{2}(H, I)$ having FD(s): H → I.
+
+    $R_{4}(A, B, E, H)$ having FD(s): (none).
+
+# Task 3 - Decompose to BCNF
+
+Using the Cho calculator, decompose the following relation to BCNF:
+
+| Group  | Artist   | Genre     | DateFounded | DateJoined |
+|--------|----------|-----------|-------------|------------|
+| Queen  | Mercury  | Pop/Rock  | 1971        | 1971       |
+| Queen  | May      | Pop/Rock  | 1971        | 1972       |
+| Queen  | Taylor   | Pop/Rock  | 1971        | 1971       |
+| Queen  | Deacon   | Pop/Rock  | 1971        | 1972       |
+| Beatles| Lennon   | Pop/Rock  | 1960        | 1960       |
+| Beatles| McCartney| Pop/Rock  | 1960        | 1960       |
+| Beatles| Starr    | Pop/Rock  | 1960        | 1960       |
+| Beatles| Harrison | Pop/Rock  | 1960        | 1960       |
+
+The relation above lists a music group and artist and the date the artist joined the group.  Further,
+the table highlights the genre of music played by the group and date the group was founded.
+
+1. Write the relation above using relational algebraic notation:
+
+    $R(A,B,C,D,E)$
+
+1. Write the functional dependencies in the same notation:
+
+    $FD( B \rightarrow A,E )$
+
+    $FD( A \rightarrow C,D )$
+
+1. Decompose the relation above and write the BCNF relations here, along with the FD(s) for the relation:
+
+    $R_{0}(A, C, D)$ having FD(s): A → C; A → D.
+
+    $R_{1}(A, B, E)$ having FD(s): B → A; B → E.
+
+# Task 4 - Normalizing a Pizza Delivery Database
+
+Your friend owns a pizza shop and asked you to help tune their database. They continue to
+encounter miscoded data and believe that you DB expertise can save them time and effort
+cleaning the data.
+
+Customer table (This table is already BCNF. Do not decompose Name.)
+
+| CustID | Name            | Address              | City         | State | Zip     | Phone          |
+|--------|-----------------|----------------------|--------------|-------|---------|----------------|
+| 101    | John Smith      | 123 Main St          | New York     | NY    | 10001   | (555) 123-4567 |
+| 102    | Mary Johnson    | 456 Elm St           | Los Angeles  | CA    | 90002   | (555) 987-6543 |
+| 103    | David Brown     | 789 Oak Ave          | Chicago      | IL    | 60603   | (555) 567-8901 |
+| 104    | Sarah Davis     | 101 Pine Rd          | Houston      | TX    | 77001   | (555) 234-5678 |
+| 105    | Michael Wilson  | 321 Cedar Blvd       | Miami        | FL    | 33102   | (555) 876-5432 |
+
+
+Order table
+
+| OrderID | Date       | CustID | PieNum | Size   | ToppingCode | ToppingDesc   | PickupOrDelivery  |
+|---------|------------|--------|--------|--------|-------------|---------------|-------------------|
+| 1001    | 2023-09-01 | 101    | 1      | Medium | PEP         | Pepperoni     | Pickup            |
+| 1001    | 2023-09-01 | 101    | 2      | Large  | MUS         | Mushrooms     | Pickup            |
+| 1002    | 2023-09-01 | 104    | 1      | Large  | SAU         | Sausage       | Delivery          |
+| 1002    | 2023-09-01 | 104    | 1      | Large  | PEP         | Pepperoni     | Delivery          |
+| 1002    | 2023-09-01 | 104    | 1      | Large  | MUS         | Mushrooms     | Delivery          |
+| 1002    | 2023-09-01 | 104    | 2      | Small  | SAU         | Sausage       | Delivery          |
+| 1005    | 2023-09-02 | 103    | 1      | Medium | PEP         | Pepperoni     | Pickup            |
+| 1005    | 2023-09-02 | 103    | 1      | Large  | MUS         | Mushrooms     | Pickup            |
+| 1011    | 2023-09-02 | 102    | 1      | Small  | SAU         | Sausage       | Pickup            |
+| 1011    | 2023-09-02 | 102    | 2      | Medium | PEP         | Pepperoni     | Pickup            |
+| 1011    | 2023-09-02 | 102    | 3      | Large  | MUS         | Mushrooms     | Pickup            |
+| 1013    | 2023-09-13 | 104    | 1      | Small  | SAU         | Sausage       | Delivery          |
+| 1013    | 2023-09-13 | 104    | 1      | Small  | PEP         | Pepperoni     | Delivery          |
+| 1013    | 2023-09-13 | 104    | 2      | Large  | MUS         | Mushrooms     | Delivery          |
+| 1013    | 2023-09-13 | 104    | 2      | Large  | SAU         | Sausage       | Delivery          |
+
+1. Refactor the existing database to all BCNF tables. Show your results.
+
+    $R_{0}( CustID, Name, Address, City, State, Zip, Phone)$ 
+    with FD(s): $CustId \rightarrow Name, Address, City, State, Zip, Phone$
+
+    $R_{1}( CustID, OrderID, PieNum, Size, ToppingCode, ToppingDesc, PickupOrDelivery)$ 
+    with FD(s): $OrderID \rightarrow Date, CustID, PieNum, Size, ToppingCode, PickupOrDelivery$
+    
+    $ToppingCode \rightarrow ToppingDesc$
+
+
+Express the following queries in relational algebraic notation. (how???)
+
+1. Who ordered the most pizzas?
+
+    Sarah Davis
+    $\pi_{name} ((\sigma_{max(pienum)}R_{3} \bowtie_{orderID} R_{0} \bowtie_{custID=custID} Customer))$
+
+1. Which was the most popular ingredient?
+
+    Mushrooms with 9 pizzas
+    $\pi_{ToppingDesc} (\sigma)
+
+1. Who place the most orders?
+
+    Sarah Davis
+
+1. What percentage of orders were pickup?
+
+    7/15 = 46.67%
+
+1. Who ordered the most pizzas in one order?
+
+    Mary Johnson
+
+1. What was the greated number of pizzas in any one order?
+
+    3
+
+1. What was the most popular size?
+
+    Large
+
+1. Which day saw the greatest number of orders placed?
+
+    the 1st with 6 orders
+
+1. Which day was the greater number of pizzas made?
+
+    the 1st and the 2nd both had 8 pizzas made that day
+

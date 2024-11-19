@@ -1,0 +1,243 @@
+---
+title: Homework 6 - Documenting an HR database
+author: Alex Welk
+date: last-modified
+format:
+    html:
+        theme: cosmo
+        toc: true
+        embed-resources: true
+        code-copy: true
+---
+
+As a highly prized and chased database wizard, you've been hired at an exorbitant hourly rate asked to document an HR database of a fortune 1_000_000 company.
+
+You've been given credentials to the database.
+
+Your tasks are to submit a report that contains:
+
+1. A general written description of contents of database,
+1. A Chen diagram highlighting the major entities and relations,
+1. A Crows-foot diagram highlighting the entities, attributes, and the cardinality and participation of the relations,
+1. A python-generated listing of SQL tables and fields, and
+1. A listing of sample data showing the first bunch (5 or 10 or so) of each table.
+1. All this will be documented in the report and the HTML report will be uploaded to canvas.
+
+
+Github repo: <https://github.com/cmsc-vcu/cmsc508-fa2023-hw6-a-welk>
+
+
+# Description
+
+(your description of the database goes here.  One or two paragraphs should suffice.  What is the purpose of the database? What are the
+major tables/relations?  What is stored in each table? Any other
+interesting features?)
+
+# Chen diagram
+
+The following diagram highlights the major relations in the database.
+
+```{dot}
+//| echo: false
+graph ER {
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	layout=neato
+	node [shape=box]; countries; departments; employees; jobs; job_grades; job_history; locations; regions;
+	node [shape=diamond,style=filled,color=lightgrey]; "has"; "is in"; "located in"; "lies within"; "tells";
+
+  employees -- "has"
+  "has" -- jobs
+  "has" -- job_history
+  "has" -- job_grades
+
+  employees -- "is in"
+  "is in" -- departments
+  departments -- "located in"
+  "located in" -- locations
+  locations -- "lies within"
+  "lies within" -- countries
+  countries -- "tells"
+  "tells" -- regions
+
+
+
+}
+```
+
+# Crows foot diagram
+
+The following diagram provides greater detail on the entities and attributes and highlights the cardinality and participation of the relations.
+
+```{mermaid}
+erDiagram
+    EMPLOYEE ||--|| JOBS : has
+    EMPLOYEE ||--|{ JOB_HISTORY : has
+    JOBS ||--|| JOB_GRADES : has
+    JOB_HISTORY o|--o{ JOBS : contains
+    EMPLOYEE ||--|| DEPARTMENTS : is_in
+    DEPARTMENTS }|--|| LOCATIONS : located_in
+    LOCATIONS }|--|| COUNTRIES : is_in
+    COUNTRIES }|--|| REGIONS : located_in
+    DEPARTMENTS {
+        int department_ID
+        string department_name
+        int manager_ID
+        int location_ID
+    }
+    COUNTRIES {
+        string country_ID
+        string country_name
+        int region_ID
+    }
+    EMPLOYEE {
+        int employee_ID
+        string first_name
+        string last_name
+        string email
+        string phone_number
+        date hire_date
+        string job_ID
+        int salary
+        int commission_pct
+        int manager_ID
+        int department_ID
+    }
+    JOBS {
+      string job_ID
+      string job_title
+      int min_salary
+      int max_salary
+    }
+    JOB_GRADES{
+      char grade_level
+      int lowest_sal
+      int highest_sal
+    }
+    JOB_HISTORY{
+      int employee_ID
+      date start_date
+      date end_date
+      string job_ID
+      int department_ID
+    }
+    LOCATIONS{
+      int location_ID
+      string street_address
+      int postal_code
+      string city
+      string state_province
+      string country_ID
+    }
+    REGIONS{
+      int region_id
+      string region_name
+    }
+
+```
+
+# Listing of tables in the database
+
+The following python blocks highlight the steps used to document the tables in the database.  The code is left in the report to show how fun it was to write python!
+
+## Load libraries
+
+This code loads teh needed libraries/modules needs to run the rest of the python code in here.
+
+```{python}
+import os
+import pandas as pd
+from sqlalchemy import create_engine, text
+from dotenv import load_dotenv
+from IPython.display import Markdown
+from tabulate import tabulate
+```
+
+## Get credentials
+
+This code is obtaining and storing the login credentials for the database out of my .env file.
+
+```{python}
+# load credentials from file ~/.env to OS environment
+load_dotenv()
+
+# use these credentials to populate a dictionary
+config = {
+  'user': os.getenv("HW6_USER"),
+  'password': os.getenv("HW6_PASSWORD"),
+  'host': os.getenv("HW6_HOST"),
+  'database': os.getenv("HW6_DB_NAME")
+}
+```
+
+## Open connection to database
+
+This code is using the credentials from my .env file and making a connection to the database.
+
+```{python}
+
+engine_uri = f"mysql+pymysql://{config['user']}:{config['password']}@{config['host']}/{config['database']}"
+cnx = create_engine(engine_uri)
+
+engine_uri_for_show = f"mysql+pymysql://{config['user']}:**pwd-goes-here**@{config['host']}/{config['database']}"
+print(engine_uri_for_show)
+
+```
+
+## Print list of tables 
+
+This code prints a list of all the tables in the database.
+
+```{python}
+# use SQL command to show tables in database
+databases = pd.read_sql("show databases",cnx)
+databases
+```
+
+## Listing of sample data
+
+This code is looping over the tables and displaying each of them.
+
+```{python}
+
+def show_table( table_name ):
+    """ Show a table using Display and Markdown """
+    # Note the use of f-strings to embed the variable name.
+    query = f"""
+select
+  ordinal_position,column_name,column_type,column_key, is_nullable
+from
+  information_schema.columns
+where
+  table_schema='23FA_hr_welka'
+  and table_name='{table_name}'
+order by 
+  ordinal_position
+"""
+    fields = pd.read_sql( query, cnx )
+    display(Markdown(f"**Table: {table_name}** \n"))
+    display(Markdown(tabulate(
+       fields,
+       headers=['Pos','Name','Type','Key','Null?'],
+       showindex= False
+    )))
+
+# Rather than loading the results into Pandas, we'll
+# use the connection string to run a query directly.
+# The result set comes back different, so not the change
+# in call to the subprogram.
+table_names = cnx.connect().execute(text("show tables"))
+for table_name in table_names:
+  show_table(table_name[0])
+
+```
+
+# Reflection
+
+
+1. This project was a headache but definitely gave me experience working with python, command line, and the tools we've used to install the needed modules.
+1. This was harder than expected. I assumed it would be pretty easy to just download the programs we needed and follow the instructions to install the modules however it became quickly apparent that there are a lot more intricacies and differences from system to system that could not have been outlined within the intructions.
+1. The instructor provided enough basic material to get us started however I believe the differences in student's machines became problematic and unforeseen. The instructor was however readily available and eager to help students make this work when contacted.
+1. I am unsure how to make this improve as I had a fair amount of problems that I am not even fully sure how I fixed.
+1. This assignment walked us through how to connect to an SQL database through VScode and showed us various SQL statements that will later help us in deliverable 4.

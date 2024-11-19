@@ -1,0 +1,339 @@
+---
+title: CMSC508 - Homework 3 - ER Diagrams
+author: Alex Welk
+date: 09/05/2023
+format:
+    html:
+        toc: true
+        embed-resources: true
+---
+
+(This is a scaffold project. I'll be providing scaffolds throughout the semester
+to get you working faster, and to make grading much easier for the TA team.)
+
+(Please remove these first three paragraphs and add your own intro/overview section.)
+
+(Please feel free to edit this document as you see fit. I provided a sample report structure using H2 and H3 for the first two designs.  You can reuse this same format the the remaining two, or develop your own format.)
+
+The code for this assignment is stored in GITHUB and available for review at:
+
+https://github.com/cmsc-vcu/cmsc508-fa2023-hw3-a-welk
+
+In the sections that follow, I'll provide conceptual designs for the word problems described.
+
+## Hospital System
+
+Picture a hospital that wants to keep track of patients, doctors, and the treatments given. Each patient has a patient ID, name, and medical history. Doctors have a license number, name, and area of specialization. Treatments have a treatment code, name, and cost. Patients can receive multiple treatments, and each treatment can be administered to multiple patients. Doctors are responsible for administering treatments to patients, and each doctor can administer multiple treatments but each treatment is administered by a single doctor.
+
+### Conceptual design in Chen Notation
+
+```{dot}
+graph ER{
+    fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	layout=neato
+
+    node [shape=box]; Patient; Doctor; Treatment;
+    node [shape = ellipse]; PatientID; name1; name2; name3; medicalHistory; code; cost; licenseNumber; specialization;
+    node [shape = diamond, style = filled, color = lightgrey]; "treats"; "with";
+
+    name1 -- Doctor;
+    licenseNumber -- Doctor;
+    specialization -- Doctor;
+
+    Doctor -- "treats" [label = "1", len = 1];
+    "treats" -- Patient [label = "n", len=1.00];
+    Patient -- PatientID;
+    Patient -- name2;
+    Patient -- medicalHistory;
+
+    Patient -- "with";
+    "with" -- Treatment [label = "n", len=1.00];
+    Treatment -- code;
+    Treatment -- name3;
+    Treatment -- cost;
+
+
+}
+```
+
+### Conceptual design in Crows foot notation
+
+```{mermaid}
+erDiagram
+    Doctor ||--o{ Patient : treats
+    Patient }o--o{ Treatments : with
+
+    Patient {
+        string patientID
+        string name
+        string medicalHistory
+    }
+    Doctor {
+        string licenseNumber
+        string name
+        string specializtion
+    }
+    Treatments {
+        string code
+        string name
+        string cost
+    }
+```
+
+### Design assumptions, considerations and tradeoffs
+
+Does not show the possibility that multiple doctors could treat one patient.
+
+### Relation sets
+
+The following are the initial relation sets for the system:
+
+* Patient(<ins>patientID </ins>, name, medicalHistory)
+* Doctor(<ins>licenseNumber </ins>, name, specialization)
+* Treatments(<ins>code </ins>, name, cost)
+* Treats(patientID, licenseNumber, code)
+
+
+## Ecommerce System
+
+Envision an ecommerce platform that sells products, serves customers, and processes transactions. Each product has a product ID, name, and price. Customers have a customer ID, name, and email address. Transactions have a transaction ID, total amount, and timestamp. A customer can make multiple transactions, and each transaction can include multiple products. Products can be part of multiple transactions but are sold by the unit in each transaction. Transactions are processed by customers, and each customer's transaction can contain multiple products.
+
+### Conceptual design in Chen Notation
+
+```{dot}
+graph ER{
+    fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	layout=neato
+
+    node [shape=box]; Customer; Transaction; Product;
+    node [shape = ellipse]; customerID; name1; name2; total; price; productID; transactionID; timestamp; email;
+    node [shape = diamond, style = filled, color = lightgrey]; "processes"; "containing";
+
+    name1 -- Customer;
+    customerID -- Customer;
+    email -- Customer;
+
+    Customer -- "processes";
+    "processes" -- Transaction [label = "n", len = 1];
+
+    Transaction -- transactionID;
+    Transaction -- total;
+    Transaction -- timestamp;
+    
+    Transaction -- "containing";
+    "containing" -- Product [label = "n", len = 1];
+
+    Product -- productID;
+    Product -- name2;
+    Product -- price;
+
+}
+```
+
+### Conceptual design in Crows foot notation
+
+```{mermaid}
+erDiagram
+
+Customer ||--|{ Transcation : processes
+Transcation }o--|{ Product : contains
+
+Customer {
+    string customerID
+    string name
+    string email
+}
+Transcation {
+    string transactionID
+    string total
+    string timestamp
+}
+Product {
+    string productID
+    string name
+    string price
+}
+```
+
+### Design assumptions, considerations and tradeoffs
+
+Assumes there is only one customer per transaction.
+
+### Relation sets
+
+The following are the initial relation sets for the system:
+
+* Customer(<ins>customerID</ins>, name, email)
+* Transaction(<ins>transactionID</ins>, total, timestamp)
+* Product(<ins>productID</ins>, name, price)
+* Processes(customerID, transactionID)
+* Contains(transactionID, productID)
+
+
+## Mural Tracking System
+
+Imagine a city that wants to keep track of its murals, artists, and the buildings they are painted on. Each mural has a mural ID, title, and completion date. Artists have an artist ID, name, and artistic style. Buildings have a building ID, address, and owner name. An artist can create multiple murals, but each mural is created by a single artist. Murals can be painted on multiple buildings, and buildings can have multiple murals. Each mural is associated with a single building and is created by one artist.
+
+### Conceptual design in Chen Notation
+
+```{dot}
+graph ER{
+    fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	layout=neato
+
+    node [shape=box]; Artist; Mural; Building;
+    node [shape = ellipse]; artistID; name1; style; muralID; title; completionDate; buildingID; address; owner;
+    node [shape = diamond, style = filled, color = lightgrey]; "paints"; "on";
+
+    artistID -- Artist;
+    name1 -- Artist;
+    style -- Artist;
+
+    Artist -- "paints"[label = "1", len = 1];
+    "paints" -- Mural [label = "n", len = 1];
+    Mural -- muralID;
+    Mural -- title;
+    Mural -- completionDate;
+    Mural -- "on" [label = "n", len = 1];
+    "on" -- Building [label = "m", len = 1];
+
+    Building -- buildingID;
+    Building -- address;
+    Building -- owner;
+
+
+}
+```
+
+### Conceptual design in Crows foot notation
+
+```{mermaid}
+erDiagram
+
+Artist ||--o{ Mural : paints
+Mural }o--o{Building : on
+
+Mural{
+    string muralID
+    string title
+    string completionDate
+}
+Artist{
+    string artistID
+    string name
+    string style
+}
+Building{
+    string buildingID
+    string address
+    string owner
+}
+```
+
+### Design assumptions, considerations and tradeoffs
+
+Not sure how to describe how the same mural can't be on one building but a building can have multiple murals.
+
+### Relation sets
+
+The following are the initial relation sets for the system:
+
+* Mural(<ins>muralID</ins>, title, completionDate)
+* Artist(<ins>artistID</ins>, name, style)
+* Building(<ins>buildingID</ins>, address, owner)
+* Paints(muralID, artistID, buildingID)
+
+## Music Venue System
+
+Consider a music venue system that wants to manage bands, venues, and concerts. Each band has a band ID, name, and genre. Venues have a venue ID, name, and capacity. Concerts have a concert ID, date, and ticket price. A band can play in multiple concerts, and concerts can host multiple bands. Concerts take place in venues, and each venue can host multiple concerts but each concert is held at a single venue. Bands perform at concerts, and each concert can host multiple bands.
+
+### Conceptual design in Chen Notation
+
+```{dot}
+graph ER{
+    fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	layout=neato
+
+    node [shape=box]; Venue; Concert; Band;
+    node [shape = ellipse]; venueID; venueName; capacity; concertID; date; ticketPrice; bandID; bandName; genre;
+    node [shape = diamond, style = filled, color = lightgrey]; "hosts"; "containing";
+
+    venueID -- Venue;
+    venueName -- Venue;
+    capacity -- Venue;
+
+    Venue -- "hosts" [label = "m", len = 1];
+    "hosts" -- Concert [label = "n", len = 1];
+
+    Concert -- concertID;
+    Concert -- date;
+    Concert -- ticketPrice;
+
+    Concert -- "containing" [label = "n", len = 1];
+    "containing" -- Band [label = "x", len = 1];
+
+    Band -- bandID;
+    Band -- bandName;
+    Band -- genre;
+
+}
+```
+
+```{mermaid}
+erDiagram
+
+Venue||--|{Concert : hosts
+Concert }|--|{ Band : contains
+
+
+
+    Band {
+        string bandID
+        string name
+        string genre
+    }
+
+    Venue{
+        string venueID
+        string name
+        string capacity
+    }
+    Concert {
+        string concertID
+        string date
+        string ticketPrice
+    }
+```
+
+### Design assumptions, considerations and tradeoffs
+
+Not sure how to show that a concert can take place at multiple venues but only one venue at a time.
+
+### Relation sets
+
+The following are the initial relation sets for the system:
+
+* Band(<ins>bandID</ins>, name, genre)
+* Venue(<ins>venueID</ins>, name, capacity)
+* Concert(<ins>concertID</ins>, date, ticketPrice)
+* Hosts(venueID, concertID)
+* Contains(concertID, bandID)
+
+## Reflection
+
+What do you find most difficult about the assignment?
+: Determining how to declare the one-to-one, one-to-many, etc. relationships
+
+What do you find easiest about the assignment?
+: The actual coding of the diagrams, the syntax and form seem pretty easy to grasp given an example code/diagram.
+
+What did you learn that will name the next assignment easier?
+: I learned how to better determine the aspects of an ER diagram and implement an ER diagram with code using quarto to render.

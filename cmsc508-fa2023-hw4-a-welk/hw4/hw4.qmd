@@ -1,0 +1,215 @@
+---
+title: Study Guide for Quiz 2
+date: last-modified
+author: Alex Welk
+format:
+    html:
+        theme: simplex
+        toc: false
+        embed-resources: true
+---
+# Github Link
+* <https://github.com/cmsc-vcu/cmsc508-fa2023-hw4-a-welk>
+
+See:
+
+* <https://www.w3.org/TR/xml-entity-names/02A.html>
+* <https://www.classe.cornell.edu/~dms79/LectureNotes/formulae/list-of-math-symbols-extended.htm>
+* <https://www.rapidtables.com/code/text/unicode-characters.html>
+* <https://www.w3schools.com/charsets/ref_utf_math.asp>
+* <https://latex-tutorial.com/align-equations/>
+* <https://quarto.org/docs/output-formats/html-themes.html>
+* advanced layout: <https://quarto.org/docs/authoring/article-layout.html>
+* <https://towardsdatascience.com/a-quick-guide-to-relational-algebra-operators-in-dbms-1ff2ddecaad7>
+* <https://www.guru99.com/relational-algebra-dbms.html>
+* <https://symbl.cc/en/unicode/blocks/miscellaneous-mathematical-symbols-a/#subblock-27D5>
+
+# Symbol helpers
+
+Selection: σ  Projection: π  Rename: ρ  Union: ∪  Intersection: ∩  Division: ÷  Join: ⨝  Left outer join: ⟕  Right outer join: ⟖  Full outer join: ⟗  Logical And: ∧  Logical Or: ∨  Cross product: ⨯
+
+* You can pick a symbol from the list above and cut/paste it where you need it.
+* You can also find a copy of the character on the web and cut/paste it into your quarto document.
+* It might help to add a new extension:  "insert unicode". Open up extension tab on left and enter "insert unicode" in search bar.
+
+# Relations and relational algebra
+ 
+<table align="center">
+<tr><td padding="0px">
+### Relation R
+
+| A | B | C |
+|---|---|---|
+| 1 | 3 | 2 |
+| 2 | 2 | 1 |
+| 3 | 1 | 3 |
+| 4 | 4 | 4 |
+</td></tr></table>
+
+<table align="center">
+<tr><td padding="0px">
+### Relation S
+
+| A | B | C |
+|---|---|---|
+| 1 | 3 | 2 |
+| 4 | 1 | 3 |
+| 1 | 2 | 3 |
+| 3 | 4 | 3 |
+</td></tr></table>
+
+<table align="center" style="table-layout:fixed; width:100%">
+<tr style="border-bottom:1px solid black">
+<td style="vertical-align:top; text-align:center; width:12%">
+**Operator**
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+**Latex style**
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+**Unicode style**
+</td>
+<td style="vertical-align:top; text-align:center; width:28%">
+**Answer using sets above above**
+</td>
+<td style="vertical-align:top; text-align:left">
+**Description**
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align:top; text-align:center; width:12%">
+Selection
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+$\sigma_{B>2}R$
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+&sigma; B>2 (R)
+</td>
+<td style="vertical-align:top; text-align:center; width:28%">
+{ [1,3,2],[4,4,4] }
+</td>
+<td style="vertical-align:top; text-align:left">
+The *selection* operation $\sigma$ is used to filter tuple from a relation.
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align:top; text-align:center; width:12%">
+Projection
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+$\pi_{A,C}R$
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+&pi; A,C (R)
+</td>
+<td style="vertical-align:top; text-align:center; width:28%">
+{ [1,2],[2,1],[3,3],[4,4] }
+</td>
+<td style="vertical-align:top; text-align:left">
+The *projection* operation $\pi$ is used to filter a set of columns from a relation.
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align:top; text-align:center; width:12%">
+Union
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+$R ∪ S$
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+R ∪ S
+</td>
+<td style="vertical-align:top; text-align:center; width:28%">
+{ [1, 3, 2],[2, 2, 1],[3, 1, 3],[4, 4, 4],[4, 1, 3],[1, 2, 3],[3, 4, 3] }
+</td>
+<td style="vertical-align:top; text-align:left">
+The *union* operation $∪$ is used to combine two relations, returning every value/set in each relation.
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align:top; text-align:center; width:12%">
+Intersection
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+$R ∩ S$
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+R ∩ S
+</td>
+<td style="vertical-align:top; text-align:center; width:28%">
+{ [1, 3, 2] }
+</td>
+<td style="vertical-align:top; text-align:left">
+The *intersection* operation $∩$ is used show only the shared values/sets from two relations.
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align:top; text-align:center; width:12%">
+Cartesian Product
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+$R ⨯ S$
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+R ⨯ S
+</td>
+<td style="vertical-align:top; text-align:center; width:28%">
+{ [1, 3, 2, 1, 3, 2], [2, 2, 1, 4, 1, 3], [3, 1, 3, 1, 2, 3], [4, 4, 4, 3, 4, 3] }
+</td>
+<td style="vertical-align:top; text-align:left">
+The *cartesian product* or the *cross join* operation $⨯$ is used to show the combination of corresponding values in each set
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align:top; text-align:center; width:12%">
+Natural Join
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+$R ⨝ S$
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+R ⨝ S
+</td>
+<td style="vertical-align:top; text-align:center; width:28%">
+{ not applicable to current relation sets }
+</td>
+<td style="vertical-align:top; text-align:left">
+The *natural join* operation $⨝$ is used to show the union of common columns in each relation. Columns with like names.
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align:top; text-align:center; width:12%">
+Set Difference
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+$R - S$
+</td>
+<td style="vertical-align:top; text-align:center; width:12%">
+R - S
+</td>
+<td style="vertical-align:top; text-align:center; width:28%">
+{ [2, 2, 1], [3, 1, 3], [4, 4, 4] }
+</td>
+<td style="vertical-align:top; text-align:left">
+The *set difference* operation $-$ is used to show the elements that are in the relations before the - that are not in the relation after the -. Set difference is not communicative.
+</td>
+</tr>
+
+</table>
+
+# Notes
+* Union brings both sets into one leaving none out. The entire Venn diagram
+* Intersection is the set of entities that are in both relations. The middle part of a Venn Diagram. Must be union compatible
+* Set difference is the set that is in the relation before the - that are not in the relation after the -. Must be union compatible
+* Cartesian product returns every possible combination of rows between the two relations.
+* UNION COMPATIBLE: relations share the same number of columns and their corresponding columns share the same domain
+* Cardinality: the numbers of tuples in a relation
+

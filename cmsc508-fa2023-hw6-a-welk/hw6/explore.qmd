@@ -1,0 +1,248 @@
+---
+title: Explore the mysql DBMS
+author: Alex Welk
+date: last-modified
+format:
+    html:
+        theme: cosmo
+        toc: true
+        embed-resources: true
+        code-copy: true
+---
+
+Lots of moving parts in homework 6!  This is an exploration
+HTML.  You should make sure that it runs without errors,
+then review the output.  We'll also be reviewing the
+output in class.
+
+Here are the tasks baked into this *qmd*.
+
+1. Install the necessary python tools and libraries
+1. Verify that the tools and libraries are installed.
+1. Verify that you can log into the phpMyAdmin site.
+1. Verify that your computer can connect to the mySql server.
+1. Explore queries and result sets using pandas
+1. Explore Quarto as a tool for writing out tables.
+1. Explore and document a new database that some provided to you.
+
+## Load libraries
+
+These are the python libraries that we'll be using in this exercise.
+
+```{python}
+import os
+import pandas as pd
+from tabulate import tabulate
+from dotenv import load_dotenv
+from sqlalchemy import create_engine,text
+from IPython.display import display, Markdown
+```
+
+If you're using *poetry*, a *poetry install* command will install
+everything and you'll be good to go.  
+
+If you're not using poetry or other venv program, you'll need to install these modules using *pip*.
+
+```
+pip install pandas
+pip install dotenv
+pip install sqlalchemy
+```
+
+Ad nauseam.  (Did I mention that you should learn poetry?)
+
+## Get credentials
+
+This code loads the credentials store OUTSIDE your github repository, in the file *.env* in your home directory (*~*).
+
+```{python}
+# load credentials from file ~/.env to OS environment
+load_dotenv()
+
+# store these credentials a dictionary for later reference
+config = {
+  'user': os.getenv("HW6_USER"),
+  'password': os.getenv("HW6_PASSWORD"),
+  'host': os.getenv("HW6_HOST"),
+  'database': os.getenv("HW6_DB_NAME")
+}
+```
+
+## Open connection to database
+
+Finally!  Now for the magic. Using the credentials we just
+loaded, we'll open a connection to the mysql DBMS.
+
+
+```{python}
+# build a sqlalchemy engine string
+engine_uri = f"mysql+pymysql://{config['user']}:{config['password']}@{config['host']}/{config['database']}"
+
+# create a database connection.  THIS IS THE ACTUAL CONNECTION!
+cnx = create_engine(engine_uri)
+
+# create a URI string for show by masking the password.
+engine_uri_for_show = f"mysql+pymysql://{config['user']}:**pwd-goes-here**@{config['host']}/{config['database']}"
+print(engine_uri_for_show)
+
+```
+
+By adding appropriate credentials to your *.env* file you can
+connect to ANY mysql database, on google, azure, your local machine,
+whatever!
+
+## Use connection to database
+
+Armed with a database connection object, we can begin to look around the DBMS.
+
+You don't have full and unfettered access.  You only have access
+to the databases that the DBA (database administrator ... me) provided!  This would be the same for any instances that you review.
+
+The code below is intended to serve as an example of how a database
+might be queried and results displayed in Quarto.
+
+### Get list of databases from DB
+
+With our connection to the DBMS we may have access to other databases beyond the *default* database identified in the connection string. 
+
+The code below lists all the databases that we can access.
+
+```{python}
+# use SQL command to show tables in database
+databases = pd.read_sql("show databases",cnx)
+databases
+```
+
+In mysql, two databases are always available: *information_schema* and *performance_schema*.
+
+### *information schema* database
+
+The `information_schema` database in MySQL is a system database that contains metadata and information about the structure and configuration of all the other databases in a MySQL server instance. It does not store user data or application data; instead, it provides a way to query and retrieve information about the database objects and server settings.
+
+Here are some of the key purposes and features of the `information_schema` database:
+
+1. Schema Inspection: You can use the `information_schema` to retrieve information about database schemas, tables, columns, indexes, and other database objects. It's particularly useful for examining the structure of databases and tables without needing to access the actual data.
+
+2. Catalog of Database Objects: It acts as a catalog or data dictionary for the MySQL server, providing information about what databases and tables exist, their names, data types, constraints, and more.
+
+3. Metadata Queries: You can run SQL queries against the `information_schema` to obtain information about database objects and their properties. For example, you can find all tables in a database, get a list of columns in a table, or discover the indexes defined on a table.
+
+4. Database Administration: Database administrators can use the `information_schema` to monitor and manage database objects, track table sizes, or check for foreign key relationships.
+
+5. SQL Statement Generation: Developers and administrators often use the `information_schema` to generate SQL statements dynamically, such as generating SQL for table creation, alteration, or querying data based on the structure of the database.
+
+6. Security and Access Control: The `information_schema` can be used to inspect access privileges and permissions for users and roles, helping to manage security settings.
+
+7. Query Optimization: Some database tools and query optimizers use information from the `information_schema` to make better decisions about query execution plans.
+
+In summary, the `information_schema` database serves as a valuable tool for database administrators, developers, and tools to query and interact with metadata and configuration information about the MySQL server and its databases. It's an essential resource for tasks related to database introspection, schema management, and system administration.
+The `performance_schema` database in MySQL is a system database that provides a wealth of information and statistics about the performance of various aspects of the MySQL server itself. It is designed to help database administrators and developers diagnose and optimize the performance of their MySQL server and the queries running on it.
+
+### *performance_schema* database
+
+Here are some of the key purposes and features of the `performance_schema`:
+
+1. Performance Monitoring: It collects detailed performance-related data about server activities, such as SQL statements, threads, and various internal events.
+
+2. Instrumentation: The `performance_schema` instruments various server components and operations, allowing you to see how resources are being used and which parts of the server are consuming the most CPU, memory, or other resources.
+
+3. Query Profiling: It can provide detailed information about SQL statements, including execution times, resource consumption, and query plans, helping you identify slow queries that need optimization.
+
+4. Wait Event Monitoring: It tracks the time spent waiting for various resources and conditions, which can help identify bottlenecks in your system.
+
+5. Resource Usage: It provides data on memory usage, I/O operations, and CPU usage for different server tasks, helping you understand resource consumption patterns.
+
+6. Locking and Contention: It helps you monitor and diagnose issues related to locks and contention, which can be crucial for applications with multiple concurrent users.
+
+7. User and Thread Statistics: You can get insights into the performance of user sessions and threads, which can help you manage connections efficiently.
+
+8. Configuration Tuning: The `performance_schema` can provide recommendations for tuning server configuration parameters based on the observed performance data.
+
+9. Security and Access Control: It can be used to monitor user activity and help audit database access.
+
+10. Compatibility: It is compatible with various monitoring and profiling tools and can be integrated with third-party performance analysis tools.
+
+To use the `performance_schema`, you typically write queries against its tables to retrieve performance-related data and gain insights into how your MySQL server is performing. Keep in mind that the `performance_schema` can consume some system resources, so it's important to use it judiciously and only enable the specific instrumentation you need for your performance analysis tasks.
+
+### Exploring the *hr* database
+
+We can view the tables in our default database, that is, the one named in the connection
+string using the `SHOW TABLES` command.
+
+```{python}
+# use SQL command to show tables in database
+tables = pd.read_sql(f"""
+show tables
+""",cnx)
+
+tables.columns = ["table_name"]
+tables
+```
+### Develop list of separate tables.
+
+Leveraging the `information_schema` database we can learn more about all of the tables in our HR database.
+
+Here is a quick listing of the top 15 rows of the *fields* table.
+
+```{python}
+fields = pd.read_sql("""
+select
+  *
+from 
+  information_schema.columns
+where 
+  table_schema='23FA_hr_welka'
+"""
+,cnx)
+
+fields.head(15)
+
+```
+<p>&nbsp;</p>
+Boatloads of information about the tables are available.  Use the
+scroll bar to see all of the columns.
+
+This a bit of overkill for what we want, let's narrow things down with the next query.
+
+### Listing tables
+
+```{python}
+
+def show_table( table_name ):
+    """ Show a table using Display and Markdown """
+    # Note the use of f-strings to embed the variable name.
+    query = f"""
+select
+  ordinal_position,column_name,column_type,column_key, is_nullable
+from
+  information_schema.columns
+where
+  table_schema='23FA_hr_welka'
+  and table_name='{table_name}'
+order by 
+  ordinal_position
+"""
+    fields = pd.read_sql( query, cnx )
+    display(Markdown(f"**Table: {table_name}** \n"))
+    display(Markdown(tabulate(
+       fields,
+       headers=['Pos','Name','Type','Key','Null?'],
+       showindex= False
+    )))
+
+# Rather than loading the results into Pandas, we'll
+# use the connection string to run a query directly.
+# The result set comes back different, so not the change
+# in call to the subprogram.
+table_names = cnx.connect().execute(text("show tables"))
+for table_name in table_names:
+  show_table(table_name[0])
+
+```
+
+## Next steps
+
+At this point, you're able to connect to a mysql DBMS and
+navigate your way around.
+
+Head over to the *hw6.qmd* file to begin the assignment!
