@@ -1,0 +1,833 @@
+---
+title: Homework 9 - Database Funhouse
+author: Alex Welk
+date: last-modified
+format:
+    html:
+        theme: cosmos
+        toc: true
+        html-math-method: katex
+        embed-resources: true
+        copy-code: true
+        css: styles.css
+---
+
+This assignment focuses on the SELECT statement with joins and other fun features.  As context, we'll be conducting an analysis of some real-world data use SQL to reveal answers.
+
+This QMD provides a tidy scaffold within which you add all of your code.
+
+**Instructions**: Please complete the python SQL sections as noted.  I'll be providing you with a bare minimum scaffold of working code so feel free to improvise as necessary.
+
+**DO NOT add or remove python sections.**  The autograder depends on the sections in the approprite order.
+
+# Problem Background
+
+(write some background on the problem and the analysis.  We'll be discussing
+the homework assignment in class, so you'll be able to get the background
+from the lecture or lecture video.)
+
+# Setting up your environment
+
+The files for this assignment are stored in my database namespace, separate from yours.  As you work your assignment you'll be reading from and writing to yours.
+
+The next few sections set your python imports and connect to the database.
+
+```{python}
+#| eval: true
+#| echo: false
+
+# We'll be using these modules in this assignment
+
+import os
+import sys
+import pandas as pd
+from tabulate import tabulate
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError, ProgrammingError
+from IPython.display import display, Markdown
+```
+
+## Loading DB params .env file
+
+```{python}
+#| eval: true
+#| echo: true
+
+# modify config_map to reflect credentials needed by this program
+# For this assignment, you'll only need to add this record to your .env file:
+
+#  HW9_DB_NAME=23FA_users_welka
+
+config_map = {
+    'user':'CMSC508_USER',
+    'password':'CMSC508_PASSWORD',
+    'host':'CMSC508_HOST',
+    'database':'HW9_DB_NAME'
+}
+# load and store credentials
+load_dotenv()
+config = {}
+for key in config_map.keys():
+    config[key] = os.getenv(config_map[key])
+flag = False
+for param in config.keys():
+    if config[param] is None:
+        flag = True
+        print(f"Missing {config_map[param]} in .env file")
+
+# build a sqlalchemy engine string
+engine_uri = f"mysql+pymysql://{config['user']}:{config['password']}@{config['host']}/{config['database']}"
+```
+
+## Creating and testing the db connection
+
+Create and test the database connection.  Fix any errors that may show by editing your *.env* file.  If nothing pops up, you're all set!
+
+```{python}
+# create a database connection.  THIS IS THE ACTUAL CONNECTION!
+try:
+    conn = create_engine(engine_uri)
+except ArgumentError as e:
+    print(f"create_engine: Argument Error: {e}")
+    #sys.exit(1)
+except NoSuchModuleError as e:
+    print(f"create_engine: No Such Module Error: {e}")
+    #sys.exit(1)
+except Exception as e:
+    print(f"create_engine: An error occurred: {e}")
+    #sys.exit(1)
+```
+
+## Helper routines 
+
+Below are helper routines to be used in the rest of the assignment.
+
+```{python}
+## This is a helper function to keep the QMD file looking cleaner!
+
+def my_sql_wrapper( query ):
+    """ takes a query and returns a pandas dataframe for output """
+    try:
+        df = pd.read_sql( query, conn )
+    except Exception as e:
+        df = pd.DataFrame({'Query error': ["(see error message above)"]})
+        msg = str(e).replace(") (",")\n(")
+        print(msg)
+    return df
+
+def my_sql_statement( statement ):
+    """ used with DDL, when the statement doesn't return any results. """
+    try:
+        conn.connect().execute(text(statement))    
+        result = ""
+    except Exception as e:
+        result = f"Error: {str(e)}"
+    return result
+
+```
+
+## Verify access to the hw9 tables
+
+You should see 3 tables in the list below.  These are tables that live inside
+the instructors table schema *23FA_users_jdleonard*.  You've been
+granted access to these tables, and will eventually make copies for yourself.  Refer to the
+<../source_data/loader.html> file for more information.
+
+```{python}
+# Do a quick test of the connection and trap the errors better!
+
+my_sql_wrapper("""
+select table_schema, table_name, table_rows
+from information_schema.tables
+where table_schema in ('23FA_users_jdleonard')
+""")
+
+```
+
+# Exercises
+
+In the following exercises, write the SQL as requested to discover the answer.
+
+## Task 1
+
+How many records are in the country table?
+
+```{python}
+# How many records are in the 23FA_users_jdleonard.wdi_country table?
+# (skills: select, aggregate)
+
+my_sql_wrapper("""
+select count(*) as "Row Count" from 23FA_users_jdleonard.wdi_country
+""")
+
+```
+
+## Task 2
+
+Explore the first 10 records in the country table.
+
+```{python}
+## write out the first 10 records and look at the columns
+## Do you see any blanks or missing data?
+## (skills: select, limit)
+
+my_sql_wrapper("""
+select * from 23FA_users_jdleonard.wdi_country limit 10
+""")
+```
+
+## Task 3
+
+List all non-countries.
+
+```{python}
+## task 3
+## Which records are NOT for countries, that is they're for regions or groups of countries.
+## How can you tell?
+## Once you figure it out, write a query to list all the non-countries
+## (skills: select, where)
+
+my_sql_wrapper("""
+select `Short Name`
+from 23FA_users_jdleonard.wdi_country 
+where region is NULL
+group by `Short Name`
+""")
+
+```
+
+## Task 4
+
+Create your own copy of WDI_Country containing just countries.
+
+```{python}
+## task 4
+## The WDI table clearly contains information for countries and non-countries
+## using CREATE TABLE ... SELECT from WHERE syntax.
+## Finally, below write a query to return the number
+## of records in the new table.
+## (skills: select, aggregate)
+
+# drop table
+my_sql_statement("""
+drop table if exists 23FA_users_welka.wdi_country
+""")
+
+# create table
+my_sql_statement("""
+create table 23FA_users_welka.wdi_country as select * from 23FA_users_jdleonard.wdi_country
+where Region is not NULL
+""")
+
+# show number of records
+my_sql_wrapper("""
+select count(*) as "Number of Countries" from 23FA_users_welka.wdi_country
+""")
+
+```
+
+## Task 5
+
+```{python}
+## create local wdi data table using 23FA_users_jdleonard.wdi_data
+## (skills: create table)
+
+my_sql_wrapper("""
+drop table if exists 23FA_users_welka.wdi_data
+""")
+
+my_sql_wrapper("""
+create table 23FA_users_welka.wdi_data as select * from 23FA_users_jdleonard.wdi_data
+""")
+```
+
+## Task 6
+
+```{python}
+## create local table of series table using 23FA_users_jdleonard.wdi_series
+## The series table contains information
+## about the data that you're using.
+## (skills: create table)
+
+my_sql_wrapper("""
+drop table if exists 23FA_users_welka.wdi_series
+""")
+
+my_sql_wrapper("""
+create table 23FA_users_welka.wdi_series as select * from 23FA_users_jdleonard.wdi_series
+""")
+```
+
+
+## Task 7
+
+According to the World Bank, in 2020 there were how many countries in the world?
+
+```{python}
+
+## (skills: select, aggregate)
+
+my_sql_wrapper("""
+select count(*) as "Number of Countries in 2020" from 23FA_users_welka.wdi_country
+""")
+
+```
+
+
+## Task 8
+
+
+```{python}
+## How many records are in your local WDI_DATA table?
+## (skills: select, aggregate)
+
+my_sql_wrapper("""
+select count(*) as "Number of Records in WDI_DATA" from 23FA_users_welka.wdi_data
+""")
+
+```
+
+## Task 9
+
+```{python}
+## How many records are in your local WDI_SERIES table?
+## (skills: select, aggregate)
+
+my_sql_wrapper("""
+select count(*) as "Number of Records in WDI_SERIES" from 23FA_users_welka.wdi_series
+""")
+```
+
+
+## Task 10
+
+What are all unique values of region in the wdi_country table?
+
+```{python}
+## Let's investigate the country_region field.
+## What is the domain of the country_region field? That is,
+## what are the unique values found there?
+## (there are several possible ways to code this in SQL)
+## (skills: select, aggregate, order by)
+
+my_sql_wrapper("""
+select distinct Region from 23FA_users_welka.wdi_country
+""")
+
+```
+
+## Task 11
+
+```{python}
+## How many countries are in each region?
+## (skills: select, aggregate, group by, order by)
+
+my_sql_wrapper("""
+select Region, count(*) as "Number of countries in each region" from 23FA_users_welka.wdi_country group by Region
+""")
+
+```
+
+## Task 12
+
+```{python}
+## List the country full names and regions for all countries in north america
+## (skills: select, where, order by)
+
+my_sql_wrapper("""
+select `Long Name`, `Region` from 23FA_users_welka.wdi_country where Region='North America'
+""")
+
+```
+
+## Task 13
+
+```{python}
+## Last year's World Cup soccer tournament was hosted by Qatar.
+## What region contains Qatar?  List the region, country short name and full name
+## (skills: select, where)
+
+my_sql_wrapper("""
+select `Region`, `Short Name`, `Long Name` from 23FA_users_welka.wdi_country where `Short Name`='Qatar'
+""")
+
+```
+
+## Task 14
+
+```{python}
+## There are two abbreviation fields in the data country_abbr and country_wb_abbr.
+## List the country code, short name, abbr, wb_abbr and region for all the countries
+## where the abbr and wb_abbr are different.
+## (skills: select, where, order by)
+
+my_sql_wrapper("""
+select `Country Code`, `Short Name`, `2-alpha code`, `WB-2 Code`, `Region` from 23FA_users_welka.wdi_country
+""")
+
+```
+
+## Task 15
+
+```{python}
+## Now, let's investigate the "income category" field.
+## List the income categories and the number of countries in each in 
+## descending order of most countries to least.
+## (skills: select, aggregate, group by, order by)
+
+my_sql_wrapper("""
+select `Income Group`, count(*) as "Count of Income Groups" from 23FA_users_welka.wdi_country group by `Income Group` order by "Count of Income Groups"
+""")
+```
+
+## Task 16
+
+```{python}
+## Mystery task.  Looking at the table from Task 13, write the
+## next obvious query based on the results in the table.
+## At a minimum, your query should put country short name in the first column.
+## you will be scored on the number of records returned and the value(s) 
+## in the first column.
+
+my_sql_wrapper("""
+select `Short Name`, `Region`, `Long Name`, `Currency Unit` from 23FA_users_welka.wdi_country where `Short Name`='Qatar'
+""")
+
+```
+
+## Task 17
+
+```{python}
+## OK, this HAS to be an error. Let's make a assumption that the country 
+## in question, because they are oil-rich, are "high income".  
+## Write an update comment to correct the issue.
+## NOTE - if you get this wrong, all subsequent tables will be wrong!
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+## Task 18
+
+```{python}
+## Write a single query that shows each region and the number of countries in each
+## income category within the region.  Rather than use COUNT, use GROUP BY and SUM.
+## (skills: select, aggregate, group by, order by)
+
+my_sql_wrapper("""
+SELECT `Region`, `Income Group`,
+       SUM(1) AS NumberOfCountries
+FROM 23FA_users_welka.wdi_country
+GROUP BY `Region`, `Income Group`
+ORDER BY `Region`, `Income Group`;
+""")
+
+```
+
+## Task 19
+
+```{python}
+## Examine the result from task 16. It would be really cool to
+## present the results of this table in a 2-D form, with 
+## columns for each income category (high, upper middle, lower middle, low, other)
+## regions down the side, and the pair-wise count inside each cell.
+## Using CASE statements, DO IT!  BE SURE to include the countries without
+## an income category.
+
+## HINT - your query should return 6 columns: the region name, one
+## column for each of the income categories (e.g., High, Upper middle, etc.)
+## and a column for the row totals.
+## (skills: select, aggregate, group by, nested query)
+
+my_sql_wrapper("""
+SELECT
+    Region,
+    COUNT(CASE WHEN `Income Group` = 'High income' THEN 1 END) AS HighIncome,
+    COUNT(CASE WHEN `Income Group` = 'Upper middle income' THEN 1 END) AS UpperMiddleIncome,
+    COUNT(CASE WHEN `Income Group` = 'Lower middle income' THEN 1 END) AS LowerMiddleIncome,
+    COUNT(CASE WHEN `Income Group` = 'Low income' THEN 1 END) AS LowIncome,
+    COUNT(*) AS RowTotal
+FROM 23FA_users_welka.wdi_country
+WHERE `Short Name` = 'Qatar'
+GROUP BY Region;
+""")
+
+```
+
+## Task 20
+
+```{python}
+## Wow! what a cool table!  It is very interesting to see where the money
+## sits around the world.  Using the general approach from Task 16 above
+## and write a query to return the single region with the most lower-income countries.
+## Your query should return 2 columns, the region name and the number of low-income countries
+## PUT THE NUMBER FIRST!
+## (skills: select, aggregate, group by, nested query, order by, limit)
+
+my_sql_wrapper("""
+select sum(1), `Region`
+from wdi_country
+where `Income Group`='Low income'
+group by `Region` order by
+sum(1) desc limit 1
+""")
+
+```
+
+## Task 21
+
+```{python}
+## Are you getting the hand of this? Good! We need to take a look at all
+## the countries in the same region and with the same income category as the Marshall Islands.
+## For each country that matches, print their country code, short name, region and 
+## income category, by order of their short name.  As a hint, the
+## country code for the Marshall Islands is MHL
+## (skills: select, where, subquery)
+
+my_sql_wrapper("""
+SELECT
+    `Country Code`,
+    `Short Name`,
+    `Region`,
+    `Income Group`
+FROM 23FA_users_welka.wdi_country
+WHERE
+    Region = (SELECT Region FROM 23FA_users_welka.wdi_country WHERE `Short Name` = 'Marshall Islands') AND
+    `Income Group` = (SELECT `Income Group` FROM 23FA_users_welka.wdi_country WHERE `Short Name` = 'Marshall Islands')
+ORDER BY `Short Name`;
+""")
+
+```
+
+## Task 22
+
+```{python}
+## OK - let's raise the heat in the kitchen! Review the output from task 16.  You'll see
+## that some of the regions do not contain all of the income levels.  For example,
+## the Europe & Central Asia region does not have any low income countries.
+##
+## If I need to compute the average number of countries in each region-income pair,
+## I need to make sure that I include the missing pairs, otherwise my denominator will 
+## be wrong and my average won't be accurate.
+##
+## CHALLENGE - using a SINGLE SQL statement, write a table that contains every
+## combination of region and income category (including the missing '') value!
+##
+## THEN add a WHERE clause to only show the values that were missing from the original pairings!
+##
+## HINT - there should be AT MOST [# of regions]x[# of income cats] = 28 rows in your final table!
+## Review that Task 13 found all the non-zero pairs, and the answer is 22.  SO - this table result should have 6 rows!
+## (skills: select, where, subqueries, joins)
+
+my_sql_wrapper("""
+with combos as ( select a.`Region`, b.`Income Group`
+from  (select `Region` from wdi_country group by `Region`) a,
+(select `Income Group` from wdi_country group by `Income Group`) b), data as 
+(select `Region`, `Income Group`, sum(1) as "No.Countries"
+from wdi_country
+group by `Region`, `Income Group`)
+select a.`Region`, a.`Income Group`, IFNULL(`No.Countries`,0.0) as "No.Countries"
+from combos a
+left join data b on (a.`Region`=b.`Region` and a.`Income Group`=b.`Income Group`)
+where `No.Countries` is NULL
+order by 1,2
+""")
+
+```
+
+## Task 23
+
+```{python}
+## Hot enough, yet?  Let's go for ghost-pepper HOT!  Now let's build some
+## percentage tables.  For example, across the entire sample, what
+## is the percentage of total countries in each income category?
+## As a first step, build off the result from task 21 and create a table with
+## six columns (region, income cat, country count, sum of countries in region, sum of countries by income and total sum countries)
+## actually calculating percentages and print out a table will be a slam dunk after this!
+## (skills: select, where, subqueries, joins, aggregate functions)
+
+my_sql_wrapper("""
+with task18_cte as (
+select `Region`, `Income Group`, sum(1) as "No.Countries"
+from
+  wdi_country
+group by
+  `Region`,
+  `Income Group`
+), inc_total_cte as (
+select
+  `Income Group`,
+  sum(1) as `Income total`
+from
+  wdi_country
+group by
+    `Income Group`
+), reg_total_cte as (
+select
+  `Region`,
+  sum(1) as `Region total`
+from
+  wdi_country
+group by
+  `Region`
+), total_cte as (
+  select sum(1) as `Total total` from wdi_country
+)
+select
+  a.`Region`,
+  a.`Income Group`,
+  `No.Countries`,
+  `Region total`,
+  `Income total`,
+  `Total total`,
+  concat(format(100*`No.Countries`/`Total total`,1),'%%') as "Pct of total"
+from
+  task18_cte a
+  join inc_total_cte b using ( `Income Group`)
+  join reg_total_cte c using ( `Region` ),
+  total_cte d
+order by
+  `No.Countries`/`Total total` desc
+""")
+
+```
+
+## Task 24
+
+```{python}
+## SLAM DUNK TIME!  Using the resulting table CTEs from Task 21, print out a table listing
+## the number, totals and percentage of countries by region.
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+## Task 25
+
+```{python}
+## ANOTHER DUNK!  Using the resulting table CTEs from Task 21, print out a table listing
+## the number, totals and percentage of countries by income category
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+## Task 26
+
+```{python}
+## Let's explore the WDI_DATA table first.  What do the first 10 records look like?
+## (skills: select, limit)
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+## Task 27
+
+```{python}
+## What are the columns?
+## (skills: describe table)
+my_sql_wrapper("""
+select table_name, column_name from information.columns where table_scheme='23FA_user_welka' and table_name in ('wdi_data')
+""")
+
+```
+
+## Task 28
+
+```{python}
+## It appears that the WDI_DATA table contains one record per country per some sort of data value 
+## over time.  LOTS of time.
+## But first, what are the different "indicator_codes" in WDI_DATA?
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+```
+
+## Task 29
+
+```{python}
+## OK, but what the heck are these datum?  The WDI_SERIES data offer "meta-data" that describes
+## the "data" in the WDI_DATA file.  WRITE a query that provides descriptions for the indicators
+## in the WDI_DATA table using information from the WDI_SERIES table.
+## Your result should include 3 columns (series code, indicator name and long definition)
+## (you need to determine which columns join the two tables, and select a subset of wdi_series)
+## (skills: select, subquery)
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+```
+
+
+## Task 30
+
+```{python}
+## INTERESTING! We've got three different types of data in the WDI data table.  We'll need to 
+## exercise care when we start adding stuff up, we don't want to mix and match the wrong data.
+## ARE YOU READY?
+##
+## What was the world population in 1960 and in 2021?
+##
+## (your result should have 3 columns, the indicator, the population in 1960 and the population in 2021).
+## (keeping it simple, there are no joins necessary: use a subquery in the WHERE)
+## (your result should also use the FORMAT function to add commas to the resulting values,
+## and order by indicator_code.)
+## (skills: select, aggregate, subquery)
+##
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+```
+
+## Task 31
+
+
+```{python}
+## That was fun! let's see what the other values turned out to be.
+## Rerun the last query, including the other indicators.
+## (your result should have 3 columns, the indicator, the population in 1960 and the population in 2021).
+## (keeping it simple, there are no joins necessary: use a subquery in the WHERE)
+## (skills: select, aggregate, subquery)
+##
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+```
+
+## Task 32
+
+
+```{python}
+## Hummhhh... Looks like there are zeros for one of the indicators for the years that we're
+## investigating.  What is the first year and the last year that CO2 data are available,
+## and what are the specific values accumulated?
+## (your result should consist of one row and three columns, one column for the indicator and two for the values
+## returned for first non-zero years.)
+## (skills: select, aggregation, subquery)
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+```
+
+## Task 33
+
+```{python}
+## What is the percentage of females in the world in 1960 and in 2020?
+## (your result should consist of one row and three columns, with description, % in 1990 and % in 2020)
+## (the description should be exactly: "Percent female")
+## (numeric values should show 2 places past the decimal AND include a % sign,  e.g., 33.33%  or 59.15%)
+## (skills: select, aggregate, subquery/with, format, concat)
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+```
+
+## Task 34
+
+
+```{python}
+## WOW! that was difficult! Seems like a lot of work, forced to hardcode years and values
+## just to calculate percentages for these data.  IS THERE A SIMPLER WAY?
+##
+## When doing data analysis, how your data are stacked make a difference.  Our lives would be
+## much simpler if we rearranged the data with indicators in the columns and years in the rows.
+##
+## BUT HOW??  
+##
+## The table WDI_DATA is currently stored in what is call a "wide format".  The data can
+## be transformed into a more manageble format - a "stacked format" that will let us pivot
+## things around.
+##
+
+## Create a new table containing stacked data from WDI_DATA.
+## Each row should have four columns: country_code, indicator_code, year_code, value
+## (skills: create table with select, UNION ALL)
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+## Task 35
+
+```{python}
+## Jump back to the DDL file and create us a new table with the data stacked vertically.
+##
+## OK, back.  How many rows are in your stacked table?
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+
+## Task 36
+
+
+```{python}
+## Present table with number of records in each year_code group.
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+## Task 37
+
+```{python}
+## Phew. Glad that's over!  Let's recalculate percentage female for the new table of stacked data.
+## (your result should have four columns: year, % female, pop female and total pop; 
+## one record per year in the wdi_data_stacked table.  Don't forget to use ONLY country data from the WDI!)
+## (skills: select, aggregate, WITH/subquery, FORMAT)
+##
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+## Task 38
+
+
+```{python}
+## Armed with a stacked data file, the table of world indicators is our oyster!
+## Prepare a table comparing total population from 1990 to 2020 (columns) by region.
+## (skills: select, aggregate, WITH/subquery, FORMAT)
+##
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
+## Task 39
+
+```{python}
+## Prepare a table comparing pct female for 1990 and 2020 (columns) by region.
+## (skills: select, aggregate, WITH/subquery, FORMAT)
+##
+
+my_sql_wrapper("""
+select 'doh!' as "Homer says ..."
+""")
+
+```
+
